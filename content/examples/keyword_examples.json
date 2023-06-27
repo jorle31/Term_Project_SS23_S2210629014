@@ -1,0 +1,22 @@
+[
+    {
+        "input": "Please identify 2 keywords for the company microsoft.", 
+        "output": "Cloud computing, Productivity software"
+    },
+    {
+        "input": "Please identify 10 keywords for the company apple.", 
+        "output": "Smartphones, Computers, Tablets, Wearables, App Store, iCloud, iOS, macOS, Apple Watch, AirPods"
+    },
+    {
+        "input": "Please identify 32 keywords for the company tesla.", 
+        "output": "Tesla, TSLA, Electric vehicles, Clean energy, Renewable energy, Battery energy storage, Solar panels, Solar roof tiles, Autopilot, Superchargers, Charging infrastructure, Gigafactory, AI chips, Energy trading, Cybertruck, Model S, Model X, Model 3, Model Y, Semi-truck, Energy storage system, Powerpack, Powerwall, Solar power system, SolarCity, Neuralink, SpaceX, Elon Musk, Sustainable energy, Carbon emissions, Climate change, Green energy"
+    },
+    {
+        "input": "Please identify 10 keywords for the company amazon with regards to their operations in Australia.", 
+        "output": "Search engine, Online advertising, Cloud computing, Software, Hardware, Artificial intelligence, Consumer electronics, Internet, Computer software, Computer hardware"
+    },
+    {
+        "input": "Please identify 10 keywords for the company google and a special focus on sales improvement.", 
+        "output": "Search engine, Online advertising, Cloud computing, Software, Hardware, Artificial intelligence, Consumer electronics, Internet, Computer software, Computer hardware"
+    }
+]

@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+
+# Environments
+.venv/
+env/
+venv/
+env.bak/
+venv.bak/
+envs/
+venvs/
+Python/
+
+# Build output
+build/
+dist/
+*.egg-info/
+*.eggs/
+
+# Distribution / packaging
+.Python
+*.pyc
+*.pyo
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+.cover/
+
+# IDE settings
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Streamlit cache
+.streamlit/
+
+# Data files
+data/
+
+# Secrets
+.env
+credentials/
