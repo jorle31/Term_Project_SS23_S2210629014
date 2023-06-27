@@ -1,7 +1,6 @@
 """
-File that contains the tool search_risk_types.
+File that contains the tools to query for risk types.
 """
-
 import logging
 
 from langchain.tools import BaseTool

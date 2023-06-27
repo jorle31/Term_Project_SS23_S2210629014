@@ -9,15 +9,15 @@ class NewsChecklist():
     """
 
     def __init__(self):
-        self.relevancyChecker = RelevancyChecker()
+        self.relevancyChecker: RelevancyChecker  = RelevancyChecker()
 
-    def checklist(self, news: dict, company: str) -> bool:
+    def checklist(self, news: dict, company: str) -> int:
         """
         Check whether the news checklist for authenticating the news as relevant as 
         well as the source as credible (future) is fulfilled.
 
         :param news: The news article to check.
-        :return: True if the conditions are fulfilled, False otherwise.
+        :return: 0 if the conditions are fulfilled, 1 otherwise.
         """
-        result: bool = self.relevancyChecker.check_relevancy(company = company, news = news["body"]) 
+        result: int = self.relevancyChecker.check_relevancy(company = company, news = news["body"]) 
         return result

@@ -1,7 +1,9 @@
 """
 File that contains the logic for the feedback loop.
 """
-from langchain.agents import AgentType
+from typing import Literal
+
+from langchain.agents import AgentType, AgentExecutor
 from langchain.chat_models import ChatOpenAI
 from langchain.agents import initialize_agent
 from langchain.prompts.chat import ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate
@@ -34,28 +36,28 @@ class FeedbackLoop():
         return db
 
     def human_input(self, company: str, problem: str, output: str) -> str:
-        wikipedia = WikipediaAPIWrapper()
+        wikipedia: WikipediaAPIWrapper = WikipediaAPIWrapper()
         search: SerpAPIWrapper = SerpAPIWrapper(serpapi_api_key = config_secrets.read_serpapi_credentials())
-        template_suggestions="""As a company specialist, you are tasked with answering questions about a company. This
+        template_suggestions: Literal = """As a company specialist, you are tasked with answering questions about a company. This
         information will be used for a risk analysis. Your answers should be in line with the feedback given on a previous
         iteration of the risk analysis.
         """
-        questions = output
+        questions: str = output
         try:
             questions = output.split("Questions:")[1].strip()
             print(questions)
         except IndexError:
             print("No questions found.")
         system_message_prompt_suggestions = SystemMessagePromptTemplate.from_template(template_suggestions)
-        human_template_suggestions="""The company in question is: {company}. The user feedback is: {problem} and the questions to answer are: {suggestions}."""
-        human_message_prompt_suggestions = HumanMessagePromptTemplate.from_template(human_template_suggestions)
-        chat_prompt_suggestions = ChatPromptTemplate.from_messages(
+        human_template_suggestions: Literal = """The company in question is: {company}. The user feedback is: {problem} and the questions to answer are: {suggestions}."""
+        human_message_prompt_suggestions: HumanMessagePromptTemplate = HumanMessagePromptTemplate.from_template(human_template_suggestions)
+        chat_prompt_suggestions: ChatPromptTemplate = ChatPromptTemplate.from_messages(
             [system_message_prompt_suggestions, human_message_prompt_suggestions]
         )
         llm_suggestions = ChatOpenAI(
-            temperature=0,
-            client=chat_prompt_suggestions,
-            openai_api_key=config_secrets.read_openai_credentials(),
+            temperature = 0,
+            client = chat_prompt_suggestions,
+            openai_api_key = config_secrets.read_openai_credentials(),
         )
         tools_suggestions = [
             Tool(
@@ -75,14 +77,12 @@ class FeedbackLoop():
                 description = "useful for when you need to detailed information about a topic"
             )
         ]
-        agent_suggestions = initialize_agent(
-            tools=tools_suggestions, llm=llm_suggestions, agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose=True
+        agent_suggestions: AgentExecutor = initialize_agent(
+            tools = tools_suggestions, llm = llm_suggestions, agent = AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose = True
         )
-        #suggestions = output.split("Suggestions:")[1]
         suggestions_answer = agent_suggestions.run(
-            chat_prompt_suggestions.format_prompt(company=company, problem=problem, suggestions=questions).to_messages()
+            chat_prompt_suggestions.format_prompt(company = company, problem = problem, suggestions = questions).to_messages()
         )
-        # answers: str = suggestions_answer
         return suggestions_answer
 
     def initialize_chain(self, instructions, memory=None):
@@ -99,10 +99,10 @@ class FeedbackLoop():
             input_variables=["history", "human_input"], template=template
         )
         chain = LLMChain(
-            llm=ChatOpenAI(temperature=0),
-            prompt=prompt,
-            verbose=True,
-            memory=ConversationBufferWindowMemory(),
+            llm = ChatOpenAI(temperature=0),
+            prompt = prompt,
+            verbose = True,
+            memory = ConversationBufferWindowMemory(),
         )
         return chain
     
@@ -121,9 +121,9 @@ class FeedbackLoop():
             input_variables=["chat_history"], template=meta_template
         )
         meta_chain = LLMChain(
-            llm=ChatOpenAI(temperature=0),
-            prompt=meta_prompt,
-            verbose=True,
+            llm = ChatOpenAI(temperature=0),
+            prompt = meta_prompt,
+            verbose = True,
         )
         return meta_chain
 
@@ -150,8 +150,8 @@ class FeedbackLoop():
         instructions = ""
         for i in range(max_meta_iters):
             print(f"[Episode {i+1}/{max_meta_iters}]")
-            chain = self.initialize_chain(instructions, memory=None)
-            output = chain.predict(human_input=meta_task)
+            chain = self.initialize_chain(instructions, memory = None)
+            output = chain.predict(human_input = meta_task)
             for j in range(max_iters):
                 print(f"(Step {j+1}/{max_iters})")
                 print(f"Assistant: {output}")
@@ -164,6 +164,7 @@ class FeedbackLoop():
                     break
                 output = chain.predict(human_input=human_input)
             if j+1 == max_iters and i+1 == max_meta_iters:
+                print(output)
                 revised_prompt = ""
                 if "revised prompt:" in output.lower():
                     revised_prompt = output.split("Revised prompt:")[1].strip()
@@ -173,9 +174,10 @@ class FeedbackLoop():
                     revised_prompt = output.strip()
                 db = self.createDBConnection()
                 db.c.execute("INSERT INTO prompts (message, type) VALUES (?, ?)", (revised_prompt, message_type))
+                db.conn.commit()
                 return revised_prompt
             meta_chain = self.initialize_meta_chain()
-            meta_output = meta_chain.predict(chat_history=self.get_chat_history(chain.memory))
+            meta_output = meta_chain.predict(chat_history = self.get_chat_history(chain.memory))
             print(f"Feedback: {meta_output}")
             instructions = self.get_new_instructions(meta_output)
             print(f"New Instructions: {instructions}")

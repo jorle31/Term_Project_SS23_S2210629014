@@ -1,3 +1,6 @@
+"""
+File that contains the code for retrieving the secret keys from the credentials.json file.
+"""
 import json
 import logging
 import os
@@ -68,13 +71,3 @@ def read_pinecone_credentials() -> str:
     filename = "credentials.json"
     config = _read_credentials(filename)
     return config["PINECONE_API_KEY"]
-
-
-def read_huggingface_hub_credentials() -> str:
-    """
-    This will read the internal config file and return the corresponding API_KEY stored in it.
-    :return: api key: api key for Huggingface Hub
-    """
-    filename = "credentials.json"
-    config = _read_credentials(filename)
-    return config["HUGGINGFACEHUB_API_TOKEN"]

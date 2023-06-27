@@ -19,9 +19,6 @@ class Indexer():
     """
 
     def __init__(self) -> None:
-        """
-        Initializes the Indexer class.
-        """
         pinecone.init(
             api_key = config_secrets.read_pinecone_credentials(),
             environment = "us-west4-gcp"
@@ -38,9 +35,9 @@ class Indexer():
         :param metric: The metric to be used for the index.
         :param pod_type: The pod type to be used for the index.
         :return: None
-        :raise ValueError: If arg document is not a Document or if the document is empty.
-        :raise ValueError: If arg index_name is not a string or if the string is empty.
-        :raise ValueError: If arg index_name is not a valid index name.
+        :raise ValueError: If arg documents is not a list of Documents or if the list is empty.
+        :raise TypeError: If arg namespace is not a string.
+        :raise ValueError: If arg index_name is not a string or if it doesn't match the pattern.
         :raise TypeError: If arg metric is not a string.
         :raise TypeError: If arg pod_type is not a string.
         """
@@ -79,6 +76,6 @@ class Indexer():
             else:
                 index: Pinecone = Pinecone.from_existing_index(index_name = index_name, embedding = embeddings, namespace = namespace)
                 index.add_documents(documents = split_documents, namespace = namespace)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             logging.error(e)
             raise ValueError(f"Error: {e}") from e

@@ -1,6 +1,12 @@
-streamlit==1.22.0
-langchain==0.0.212
+streamlit==1.24.0
+langchain==0.0.216
 tiktoken==0.4.0
 pinecone-client==2.2.2
 openai==0.27.8
 google-search-results==2.4.2
+
+# if you want to use fake news classifiers
+# scikit-learn==1.2.2
+# pandas==2.0.2
+# numpy==1.25.0
+# keras==2.12.0

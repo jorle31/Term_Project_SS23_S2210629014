@@ -1,12 +1,9 @@
 """
-File that contains the custome LangChain tool process_thoughts.
+File that contains the custome LangChain tool risk_scoring_template.
 """
 import logging
 
 from langchain.agents import tool
-from langchain.chat_models import ChatOpenAI
-
-from src.logic.config import secrets as config_secrets
 
 @tool
 def risk_scoring_template(question: str) -> str:

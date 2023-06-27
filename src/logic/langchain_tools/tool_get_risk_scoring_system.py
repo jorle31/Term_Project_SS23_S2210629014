@@ -1,16 +1,9 @@
 """
-File that contains the custome LangChain tool format_output.
+File that contains the custome LangChain tool get_risk_scoring_system.
 """
 import logging
 
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import RetrievalQA
-from langchain.vectorstores import Pinecone
-from langchain.embeddings.openai import OpenAIEmbeddings
-import pinecone 
 from langchain.agents import tool
-
-from src.logic.config import secrets as config_secrets
 
 @tool
 def get_risk_scoring_system(question: str) -> str: 

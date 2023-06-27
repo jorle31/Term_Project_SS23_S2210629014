@@ -10,6 +10,7 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.chat_models import ChatOpenAI
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains.qa_with_sources.loading import BaseCombineDocumentsChain
 
 import src.logic.config.secrets as config_secrets
 
@@ -19,10 +20,7 @@ class TextSummarizer():
     """
 
     def __init__(self) -> None:
-        """
-        Initialize the TextSummarizer.
-        """
-        self.chain = load_summarize_chain(
+        self.chain: BaseCombineDocumentsChain = load_summarize_chain(
             llm = ChatOpenAI(
                 temperature = 0.5,
                 client = Document,
@@ -31,29 +29,6 @@ class TextSummarizer():
             chain_type = "map_reduce",
             verbose = True,
         )
-
-    # def num_tokens(self, text: str, model: str) -> int:
-    #     """
-    #     Calculate the number of tokens in a given text.
-
-    #     :param content: The string to be tokenized.
-    #     :param model: The model to be used for tokenization.
-    #     :return: The total number of tokens in the text.
-    #     :raise ValueError: If the param text is not a string or if the string is empty.
-    #     :raise ValueError: If the param model is not a string or if the string is empty.
-    #     """
-    #     if not isinstance(text, str) or not text.strip():
-    #         raise ValueError("Argument text must be a non-empty string.")
-    #     if not isinstance(model, str) or not model.strip():
-    #         raise ValueError("Argument model must be a non-empty string.")
-    #     try:
-    #         encoded: list[int] = tiktoken.encoding_for_model(model).encode(text)
-    #     except ValueError as e:
-    #         raise ValueError(
-    #             f"Error encoding document with model '{model}': {str(e)}"
-    #         ) from e
-    #     print(len(encoded))
-    #     return len(encoded)
     
     def num_tokens(self, text: str, model: str = "cl100k_base") -> int:
         """
@@ -70,7 +45,7 @@ class TextSummarizer():
         if not isinstance(model, str) or not model.strip():
             raise ValueError("Argument model must be a non-empty string.")
         try:
-           tokens = tiktoken.get_encoding(model).encode(text)
+           tokens: List[int] = tiktoken.get_encoding(model).encode(text)
         except ValueError as e:
             raise ValueError(
                 f"Error encoding document with model '{model}': {str(e)}"
@@ -86,7 +61,7 @@ class TextSummarizer():
 
         :param raw_text: The text to be processed.
         :param max_tokens: The maximum number of tokens allowed for a prompt to the
-        respective llm.
+        respective LLM.
         :return: The summarized text if the original document has more than the specified
         amount of tokens, otherwise the original document.
         :raise ValueError: If arg raw_text is not a string or if the string is empty.

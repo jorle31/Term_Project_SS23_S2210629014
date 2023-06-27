@@ -2,9 +2,10 @@
 File that contains the logic for keyword generation.
 """
 import logging
-from typing import List
+from typing import List, Literal
+import json
 
-from langchain.agents import AgentType, initialize_agent
+from langchain.agents import AgentType, initialize_agent, AgentExecutor
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import (
     ChatPromptTemplate,
@@ -17,14 +18,12 @@ from langchain.prompts.example_selector import SemanticSimilarityExampleSelector
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.prompts import FewShotPromptTemplate, PromptTemplate
-from langchain.document_loaders import JSONLoader
 
 from src.logic.langchain_tools.tool_process_thought import process_thoughts
 
 from src.logic.config import secrets as config_secrets
 
 from db.database_connector import DatabaseConnector
-
 
 class KeywordGenerator():
     """
@@ -33,18 +32,18 @@ class KeywordGenerator():
 
     def __init__(self) -> None:
         self.keyword_list: List[str] = []
-        self.few_shot_examples = []
+        self.few_shot_examples: List = []
         self.template: str = """template"""
-        self.system_template = """system message template"""
-        self.system_message_prompt = SystemMessagePromptTemplate.from_template(self.system_template)
-        self.human_template = """human message template"""
-        self.few_shot_human_1 = SystemMessagePromptTemplate.from_template("human message example template", additional_kwargs={"name": "example_user"})
-        self.few_shot_ai_1 = SystemMessagePromptTemplate.from_template("""ai message example template""", additional_kwargs={"name": "example_assistant"})
-        self.human_message_prompt = HumanMessagePromptTemplate.from_template(self.human_template)
-        self.chat_prompt = ChatPromptTemplate.from_messages(
-            [self.system_message_prompt, self.few_shot_human_1, self.few_shot_ai_1, self.human_message_prompt]
+        self.system_template: Literal = """system message template"""
+        self.system_message_prompt: SystemMessagePromptTemplate = SystemMessagePromptTemplate.from_template(self.system_template)
+        self.human_template: Literal = """human message template"""
+        self.few_shot_human: SystemMessagePromptTemplate = SystemMessagePromptTemplate.from_template("human message example template", additional_kwargs={"name": "example_user"})
+        self.few_shot_ai: SystemMessagePromptTemplate = SystemMessagePromptTemplate.from_template("""ai message example template""", additional_kwargs={"name": "example_assistant"})
+        self.human_message_prompt: HumanMessagePromptTemplate = HumanMessagePromptTemplate.from_template(self.human_template)
+        self.chat_prompt: ChatPromptTemplate = ChatPromptTemplate.from_messages(
+            [self.system_message_prompt, self.few_shot_human, self.few_shot_ai, self.human_message_prompt]
         )
-        self.llm = ChatOpenAI(
+        self.llm: ChatOpenAI = ChatOpenAI(
             temperature = 0,
             client = self.chat_prompt,
             openai_api_key = config_secrets.read_openai_credentials(),
@@ -64,7 +63,7 @@ class KeywordGenerator():
                 but you want to make sure it's formatted correctly"""
             )
         ]
-        self.agent = initialize_agent(
+        self.agent: AgentExecutor = initialize_agent(
             tools = self.tools, llm = self.llm, agent = AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose = True,
             max_iterations = 20, early_stopping_method = "generate"
         )
@@ -79,33 +78,35 @@ class KeywordGenerator():
     
     def get_few_shot_examples(self, input: str) -> List[str]:
         """
-        Choose examples from the database to use for the few-shot learning.
+        Choose example from the database to use for the few-shot learning.
+
+        :param input: The input to the few-shot learning.
+        :return: The few-shot learning example.
         """
-        import json
         with open('./content/examples/keyword_examples.json', 'r') as file:
             data = json.load(file)
-        example_prompt = PromptTemplate(
-            input_variables=["input", "output"],
-            template="Input: {input}\nOutput: {output}",
+        example_prompt: PromptTemplate = PromptTemplate(
+            input_variables = ["input", "output"],
+            template = "Input: {input}\nOutput: {output}",
         )
         examples = data
         example_selector = SemanticSimilarityExampleSelector.from_examples(
             examples,
             OpenAIEmbeddings(),
             FAISS,
-            k=1,
+            k = 1,
         )
-        similar_prompt = FewShotPromptTemplate(
-            example_selector=example_selector,
-            example_prompt=example_prompt,
-            prefix="Please identify n keywords for a company.",
-            suffix="""{input}\nOutput:""",
-            input_variables=["input"],
+        similar_prompt: FewShotPromptTemplate = FewShotPromptTemplate(
+            example_selector = example_selector,
+            example_prompt = example_prompt,
+            prefix = "Please identify n keywords for a company.",
+            suffix = """{input}\nOutput:""",
+            input_variables = ["input"],
         )
-        result = similar_prompt.format(input=input)
-        pairs = result.split("\n\n")
-        input = pairs[1].split("\nOutput:")[0].strip()
-        output = pairs[1].split("\nOutput:")[1].strip()
+        result: str = similar_prompt.format(input = input)
+        pairs: List[str] = result.split("\n\n")
+        input: str = pairs[1].split("\nOutput:")[0].strip()
+        output: str = pairs[1].split("\nOutput:")[1].strip()
         return [input, output]
 
     def clean_output(self, output_raw: str) -> None:
@@ -164,11 +165,11 @@ class KeywordGenerator():
             else:
                 self.human_template = """Please identify {n} keywords for the company {company}."""
                 self.few_shot_examples = self.get_few_shot_examples(input="Please identify {n} keywords for the company {company}.")
-            self.few_shot_human_1 = SystemMessagePromptTemplate.from_template(self.few_shot_examples[0], additional_kwargs = {"name": "example_user"})
-            self.few_shot_ai_1 = SystemMessagePromptTemplate.from_template(self.few_shot_examples[1], additional_kwargs = {"name": "example_assistant"})
+            self.few_shot_human = SystemMessagePromptTemplate.from_template(self.few_shot_examples[0], additional_kwargs = {"name": "example_user"})
+            self.few_shot_ai = SystemMessagePromptTemplate.from_template(self.few_shot_examples[1], additional_kwargs = {"name": "example_assistant"})
             self.human_message_prompt = HumanMessagePromptTemplate.from_template(self.human_template)
             self.chat_prompt = ChatPromptTemplate.from_messages(
-                [self.system_message_prompt, self.few_shot_human_1, self.few_shot_ai_1, self.human_message_prompt]
+                [self.system_message_prompt, self.few_shot_human, self.few_shot_ai, self.human_message_prompt]
             )
             result: str = self.agent.run(
                 self.chat_prompt.format_messages(company = company, n = n)

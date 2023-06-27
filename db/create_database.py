@@ -22,11 +22,6 @@ columns = [
 ]
 # Create the table prompts
 db.create_table('prompts', columns)
-db.c.execute("INSERT INTO prompts (message, type) VALUES ('Please identify 2 keywords for the company Microsoft.', 'keyword')")
-db.c.execute("INSERT INTO prompts (message, type) VALUES ('Please identify potential risks for the company {company} from the content of the news article: {news}.', 'analysis')")
-db.c.execute("INSERT INTO prompts (message, type) VALUES ('Please rate the relevancy of news: {news} for the company: {company}.', 'relevancy')")
-
-# Create the table ...
 
 # Commit the changes and close the database connection
 db.conn.commit()
