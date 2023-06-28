@@ -46,8 +46,7 @@ class KeywordGenerator():
         self.llm: ChatOpenAI = ChatOpenAI(
             temperature = 0,
             client = self.chat_prompt,
-            openai_api_key = config_secrets.read_openai_credentials(),
-            max_retries = 10
+            openai_api_key = config_secrets.read_openai_credentials()
         )
         self.search: SerpAPIWrapper = SerpAPIWrapper(serpapi_api_key = config_secrets.read_serpapi_credentials())
         self.tools = [
@@ -64,8 +63,7 @@ class KeywordGenerator():
             )
         ]
         self.agent: AgentExecutor = initialize_agent(
-            tools = self.tools, llm = self.llm, agent = AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose = True,
-            max_iterations = 20, early_stopping_method = "generate"
+            tools = self.tools, llm = self.llm, agent = AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, verbose = True
         )
 
     def createDBConnection(self, db_name: str = "risk.db") -> DatabaseConnector:

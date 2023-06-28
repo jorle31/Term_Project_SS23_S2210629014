@@ -80,7 +80,9 @@ class RelevancyChecker():
             self.template = """You are a risk analyst and your task is to evaluate the relevance of 
             a news article to your company. You will be provided with the company name and the corresponding news article. 
             Your final answer should include two sections: a. Relevancy: True (directly or indirectly relevant to the company) 
-            or False. b. Explanation: Provide the reasoning behind your answer."""
+            or False. b. Explanation: Provide the reasoning behind your answer. Keep in mind that news mentioning aspects such
+            as competitors or their products/services in the same market can still be relevant even when not mentioning the 
+            company name directly."""
             few_shot_company: Literal = "Gucci"
             few_shot_article: Literal = """In a recent sighting that has sent fans into a frenzy, the beloved British singer and 
             style icon, Harry Styles, was seen sporting a stunning Gucci tee while expressing his infatuation with the 

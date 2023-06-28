@@ -16,18 +16,12 @@ from src.logic.helper_functionality.document_indexation import Indexer
 
 import src.logic.config.secrets as config_secrets
 
-from db.database_connector import DatabaseConnector
-
 import os
 import dotenv
 dotenv.load_dotenv()
 os.environ["OPENAI_API_KEY"] = config_secrets.read_openai_credentials()
 
 st.set_page_config(page_title="Risky Business", page_icon="📈")
-
-# create database connection
-db = DatabaseConnector('risk.db')
-db.open()
 
 # define the singletons
 keyword_generator = KeywordGenerator()
@@ -64,6 +58,7 @@ st.markdown("""---""")
         
 # generate keywords for a company
 st.header('1. Generate Keywords')
+st.session_state.keywords = ["Microsoft"]
 st.write("""The first step in the pipeline is to generate keywords for the company. This is done by using the
         company name as a seed for an agent implementing the ChatGPT-API amongst a variety of tools. The agent
         generates a list of keywords that are relevant to the company and its operations/products.""")
@@ -104,9 +99,11 @@ if filter_news:
     for article in st.session_state.news:
         article["body"] = text_summarizer.summarize_text(raw_text = article["body"], max_tokens = 3500)
         news_verified: bool = news_checklist.checklist(news = article, company = company)  
-        st.write(f"News verified: {news_verified}, for: {article['title']}")
+        if news_verified == 1:
+            st.write(f"News verified: False, for: {article['title']}")
+        else:
+            st.write(f"News verified: True, for: {article['title']}")
         if news_verified == 0:
-            print(1)
             news_cleaned.append(article)
         st.session_state.news = news_cleaned   
 st.markdown("""---""")
