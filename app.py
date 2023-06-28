@@ -58,7 +58,6 @@ st.markdown("""---""")
         
 # generate keywords for a company
 st.header('1. Generate Keywords')
-st.session_state.keywords = ["Microsoft"]
 st.write("""The first step in the pipeline is to generate keywords for the company. This is done by using the
         company name as a seed for an agent implementing the ChatGPT-API amongst a variety of tools. The agent
         generates a list of keywords that are relevant to the company and its operations/products.""")
@@ -139,8 +138,6 @@ st.header('5. Conduct anaylsis')
 st.write("""The fifth stepstep includes conducting a risk anaylsis identifying potential risks discussed in a news article.""")
 click3 = st.button('Click me! to conduct a risk analysis')
 if click3:
-    st.session_state.news = [{"title": "Apple is a great company", "body": """Microsoft has been increasingly moving Windows to the cloud on the commercial side with Windows 365, but the software giant also wants to do the same for consumers. In an internal “state of the business” Microsoft presentation from June 2022, Microsoft discuses building on “Windows 365 to enable a full Windows operating system streamed from the cloud to any device.
-    The presentation has been revealed as part of the ongoing FTC v. Microsoft hearing, as it includes Microsoft’s overall gaming strategy and how that relates to other parts of the company’s businesses. Moving “Windows 11 increasingly to the cloud” is identified as a long-term opportunity in Microsoft’s “Modern Life” consumer space, including using “the power of the cloud and client to enable improved AI-powered services and full roaming of people’s digital experience."""}]
     content = text_summarizer.summarize_text(raw_text = st.session_state.news[0]["body"], max_tokens = 3500)
     analysis_result = risk_analysis.analysis(company = company, news = content)
     st.write(analysis_result)
