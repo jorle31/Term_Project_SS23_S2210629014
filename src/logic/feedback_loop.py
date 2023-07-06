@@ -55,6 +55,7 @@ class FeedbackLoop():
             [system_message_prompt_suggestions, human_message_prompt_suggestions]
         )
         llm_suggestions = ChatOpenAI(
+            model="gpt-4",
             temperature = 0,
             client = chat_prompt_suggestions,
             openai_api_key = config_secrets.read_openai_credentials(),
@@ -99,7 +100,7 @@ class FeedbackLoop():
             input_variables=["history", "human_input"], template=template
         )
         chain = LLMChain(
-            llm = ChatOpenAI(temperature=0),
+            llm = ChatOpenAI(model="gpt-4", temperature=0),
             prompt = prompt,
             verbose = True,
             memory = ConversationBufferWindowMemory(),
@@ -121,7 +122,7 @@ class FeedbackLoop():
             input_variables=["chat_history"], template=meta_template
         )
         meta_chain = LLMChain(
-            llm = ChatOpenAI(temperature=0),
+            llm = ChatOpenAI(model="gpt-4", temperature=0),
             prompt = meta_prompt,
             verbose = True,
         )
@@ -137,7 +138,7 @@ class FeedbackLoop():
         new_instructions = meta_output[meta_output.find(delimiter) + len(delimiter) :]
         return new_instructions
     
-    def main(self, task: str, company: str, problem: str, message_type:str, max_iters=3, max_meta_iters=2):
+    def main(self, task: str, company: str, problem: str, message_type:str, max_iters=3, max_meta_iters=1):
         failed_phrase = "task failed"
         success_phrase = "task succeeded"
         key_phrases = [success_phrase, failed_phrase]
@@ -169,7 +170,7 @@ class FeedbackLoop():
                 if "revised prompt:" in output.lower():
                     revised_prompt = output.split("Revised prompt:")[1].strip()
                     if "questions:" in revised_prompt.lower():
-                        revised_prompt = revised_prompt.split("Questions:")[0].strip()
+                        revised_prompt = revised_prompt.split("b) Questions:")[0].strip()
                 else:
                     revised_prompt = output.strip()
                 db = self.createDBConnection()

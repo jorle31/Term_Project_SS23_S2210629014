@@ -1,6 +1,6 @@
 A. Setup 
 
-The following will explain how you can set this porject up.
+The following will explain how you can set this project up.
 
 - Installation
 

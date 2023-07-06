@@ -42,9 +42,6 @@ htmlcov/
 # Streamlit cache
 .streamlit/
 
-# Data files
-data/
-
 # Secrets
 .env
 credentials/

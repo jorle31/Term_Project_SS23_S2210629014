@@ -44,6 +44,7 @@ class KeywordGenerator():
             [self.system_message_prompt, self.few_shot_human, self.few_shot_ai, self.human_message_prompt]
         )
         self.llm: ChatOpenAI = ChatOpenAI(
+            model="gpt-4",
             temperature = 0,
             client = self.chat_prompt,
             openai_api_key = config_secrets.read_openai_credentials()
@@ -145,9 +146,7 @@ class KeywordGenerator():
             accurately describe a company based on its operations and products. The company name will be passed to you. Include
             industry-specific terminology to ensure the keywords are tailored to the company's operations. Please return only 
             the comma-separated list of keywords, without any prefix or suffix, containing only the desired amount of keywords 
-            as your final answer. Your first thought should always be: What are n keywords that accurately describe the 
-            company based on its operations and products? Your final thought should always be to choose the top n keywords 
-            that accurately describe the company based on its operations and products."""
+            as your final answer."""
             self.system_message_prompt = SystemMessagePromptTemplate.from_template(self.template)
             if(message_type and message_type == "keyword"):
                 db = self.createDBConnection()

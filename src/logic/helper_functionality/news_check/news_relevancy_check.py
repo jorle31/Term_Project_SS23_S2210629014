@@ -31,6 +31,7 @@ class RelevancyChecker():
             [self.system_message_prompt, self.few_shot_human, self.few_shot_ai, self.human_message_prompt]
         )
         self.llm: ChatOpenAI = ChatOpenAI(
+            model="gpt-4",
             temperature = 0,
             client = self.chat_prompt,
             openai_api_key = config_secrets.read_openai_credentials()
@@ -95,7 +96,8 @@ class RelevancyChecker():
             self.few_shot_human = SystemMessagePromptTemplate.from_template("""Please rate the relevancy of news: {few_shot_article} for the
             company: {few_shot_company}.""", additional_kwargs={"name": "example_user"})
             self.few_shot_ai = SystemMessagePromptTemplate.from_template("{few_shot_answer}", additional_kwargs={"name": "example_assistant"})
-            self.human_template = """Please rate the relevancy of news: {news} for the company: {company}."""
+            self.human_template = """Please rate the relevancy of a news article for the company: {company}. 
+            News article: {news}"""
             self.human_message_prompt: HumanMessagePromptTemplate = HumanMessagePromptTemplate.from_template(self.human_template)
             self.chat_prompt = ChatPromptTemplate.from_messages(
                 [self.system_message_prompt, self.few_shot_human, self.few_shot_ai, self.human_message_prompt]

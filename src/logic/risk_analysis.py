@@ -118,14 +118,15 @@ class RiskAnalysis():
                 if row:
                     human_template = row[0]
                 else:
-                    human_template = "Please identify the key points of the following news article."
+                    human_template = "Please identify the key points of the news article."
             else:
-                human_template = "Please identify the key points of the following news article."
+                human_template = "Please identify the key point of the news article."
             human_message_prompt: HumanMessagePromptTemplate = HumanMessagePromptTemplate.from_template(human_template)
             chat_prompt: ChatPromptTemplate = ChatPromptTemplate.from_messages(
                 [system_message_prompt, human_message_prompt]
             )
             llm: ChatOpenAI = ChatOpenAI(
+                model="gpt-4",
                 temperature = 0, 
                 client = chat_prompt, 
                 openai_api_key = config_secrets.read_openai_credentials()
@@ -134,13 +135,13 @@ class RiskAnalysis():
             keypoints: str = keypoint_chain.run(news=news)
             logging.info("Done reading article.")
 
-            model_risk_score: ChatOpenAI = ChatOpenAI(temperature=0)
+            model_risk_score: ChatOpenAI = ChatOpenAI(model="gpt-4", temperature=0)
             planner_risk_score = load_chat_planner(model_risk_score)
             executor_risk_score = load_agent_executor(model_risk_score, tools_risk_types, verbose=True)
             agent_risk_score = PlanAndExecute(planner=planner_risk_score, executor=executor_risk_score, verbose=True)
-            risk_analysis: str = agent_risk_score.run("""You are a helpful assistant. Please identify the major risks for the 
+            risk_analysis: str = agent_risk_score.run("""You are a helpful assistant. Please identify the risks for the 
             company {company} based on this statement: {keypoints}. Report each identified risk type (max. 3) and support your decision
-            by providing explanations. Do not create more than 5 steps.""".format(company = company, keypoints = keypoints))
+            by providing explanations.""".format(company = company, keypoints = keypoints))
             logging.info("Done risk analysis.")
         
             system_template = "You are a helpful assistant. Your job is to award risk scores to identified risks."
@@ -166,6 +167,7 @@ class RiskAnalysis():
                 [system_message_prompt, example_message_human, example_message_ai, human_message_prompt]
             )
             llm: ChatOpenAI = ChatOpenAI(
+                model="gpt-4",
                 temperature = 0, 
                 client = chat_prompt, 
                 openai_api_key = config_secrets.read_openai_credentials(),
